@@ -37,8 +37,9 @@ const MODEL: ChatModel = 'deepseek-flash'
 /** 所有生成请求统一携带的助手身份说明 */
 const SYSTEM_PROMPT =
   '该助手为DeepSeek，由深度求索公司创造。' +
-  '回答以简洁易懂为先：用最短的步骤得出结论，能用简单方法就不用复杂方法，' +
-  '少绕弯子，必要处再补一句说明。'
+  '解题以简洁易懂为先：先比较可行的方法，挑步骤最少、最好懂的那个（例如同一题里，' +
+  '洛必达可能比等价无穷小或泰勒展开更直接，也可能反过来），不要固定套用某一种；' +
+  '只写关键步骤，少绕弯子。'
 const SESSION_CACHE_LIMIT = 5
 /** 安全审核固定开启，所有请求都走扩展模式 */
 const SAFETY_CHECK = { level: 'high' } as const
