@@ -4,7 +4,7 @@
 修了一批手机上用着别扭的地方，并打包成了可以安装的 Android 应用。
 
 - **在线版**：https://littlehuochai.github.io/deepseek-demo/
-- **APK 下载**：[Releases](../../releases)
+- **APK 下载**：[Releases](../../releases)（当前 v1.2）
 - **用前需要**：你自己的 DeepSeek API Key（在页面「设置」里填一次，存在本机）
 
 ## 相对原版的改动
@@ -17,7 +17,7 @@
 4. **窄屏不再横向溢出**：长公式、宽表格收进自己的滚动框，页面不会被撑得比屏幕宽。
 5. **PWA**：加 manifest + Service Worker，可装到桌面、离线打开。
 6. **解题偏好**：求极限时优先洛必达（必要时先化 0/0、∞/∞ 型）。
-7. **Android APK**：WebView 壳 + 资源全部内置，点开必定有界面，不依赖任何域名；支持图片/文件上传。
+7. **Android APK**：WebView 壳 + 资源全部内置，点开必定有界面，不依赖任何域名；支持图片/文件上传、语音输入录音。
 
 ## 在线版
 
