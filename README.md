@@ -1,75 +1,49 @@
-# chat-demo
+# DeepSeek 演示（手机优化版 + APK）
 
-English | [简体中文](README.zh-CN.md)
+基于 DeepSeek 官方开源的 [chat-demo](https://github.com/deepseek-ai/chat-demo)（MIT）修改，
+修了一批手机上用着别扭的地方，并打包成了可以安装的 Android 应用。
 
-A static chat demo powered by the DeepSeek API. No application backend is required: the browser connects directly to the configured API service.
+- **在线版**：https://littlehuochai.github.io/deepseek-demo/
+- **APK 下载**：[Releases](../../releases)
+- **用前需要**：你自己的 DeepSeek API Key（在页面「设置」里填一次，存在本机）
 
-You can [try the app online](https://deepseek-ai.github.io/chat-demo/) or download the archive from [Releases](https://github.com/deepseek-ai/deepseek-chat-demo/releases), extract it, and double-click `index.html` to use it locally without installation or a build. Enter your API key in Settings before your first chat.
+## 相对原版的改动
 
-## Getting started
+1. **公式定界符兼容**：模型有时写 `\[ ... \]`、`\( ... \)` 或裸的 `\begin{aligned}`，
+   原版会当成普通文字显示。现在解析前统一成 `$$` / `$`，代码块和已有公式不受影响。
+2. **分式统一竖排**：写成 `a/b` 的分式（含 `-1/x^2`、`e^{1/x}`、`1/(1+x^2)`）自动转成 `\frac`，
+   不再出现横向的斜杠分数。
+3. **思考过程默认收起**：只留一行「已思考（用时 N 秒）」，点开才看推理过程。
+4. **窄屏不再横向溢出**：长公式、宽表格收进自己的滚动框，页面不会被撑得比屏幕宽。
+5. **PWA**：加 manifest + Service Worker，可装到桌面、离线打开。
+6. **解题偏好**：求极限时优先洛必达（必要时先化 0/0、∞/∞ 型）。
+7. **Android APK**：WebView 壳 + 资源全部内置，点开必定有界面，不依赖任何域名；支持图片/文件上传。
 
-Install Node.js 22.12+ and pnpm, then run:
+## 在线版
 
 ```sh
-git clone https://github.com/deepseek-ai/chat-demo.git
-cd chat-demo
 pnpm install
-pnpm dev
+pnpm build          # 产物在 dist/
 ```
 
-Open http://localhost:8090.
+把 `dist/` 推到任意静态托管即可（现用 GitHub Pages）。
 
-To build the static site:
+## 打包 APK
 
 ```sh
-pnpm build
+./apk/build.sh      # 默认取 ../../chat-demo-mobile/dist 之类，见脚本第 1 个参数
 ```
 
-The output is written to `dist/`. Deploy it to a static web server or open `dist/index.html` directly. Opening the file directly requires browser support for storage on `file://` pages and an API service that permits their cross-origin requests.
+依赖：JDK 17、Android build-tools（aapt2/d8/zipalign/apksigner）、android.jar。
+在 arm64 机器上要注意 build-tools 是 x86_64 的，需要 `qemu-x86_64-static` 运行 aapt2 和 zipalign，
+脚本里已处理。签名用 `apk/dsh.keystore`，同签名覆盖安装可保留数据。
 
-## Features
+## 说明
 
-- Multiple conversations with automatic titles, renaming, and deletion; edit prompts, regenerate replies, and switch between message branches.
-- Streaming replies, deep thinking, smart search, link reading, and source citations; stop generation or continue eligible replies.
-- Upload, paste, or drag and drop attachments; use voice input and read replies aloud. A live audio spectrum appears in the first row of the input area while recording on mobile.
-- Markdown, syntax highlighting, KaTeX math, and Mermaid diagrams.
-- Simplified Chinese and English, light and dark themes, mobile layouts, location settings, and chat history import and export.
+- 模型固定 `deepseek-flash`：`deepseek-v4-pro` 不支持本页依赖的联网搜索、读链接与自动起标题扩展。
+- 对话和 Key 都存在浏览器/App 本地，清除应用数据或换设备会丢失，记得用「设置 → 数据管理 → 导出」备份。
+- 原版说明见 [README-upstream.zh-CN.md](./README-upstream.zh-CN.md)。
 
-## Data and storage
+## 许可
 
-Your API key and settings are stored in the browser's localStorage. Conversations and original attachments are stored in IndexedDB. Local data is isolated by browser profile and site origin. Sending messages, uploading attachments, and using speech features sends the relevant content to the configured API service.
-
-History import and export in Settings use ZIP archives. After confirmation and successful validation, importing replaces all local conversations and attachments. Exports include conversations and locally available original images, but exclude API keys, settings, and original non-image attachments. See the [history import/export documentation (Chinese)](src/services/chat/history/README.md) for the archive format and preservation details.
-
-Settings → Data → Delete all chats clears all local conversations, original attachments, and unsent drafts after confirmation. It stops ongoing replies and returns to a new chat. Your API key and settings are preserved; files already uploaded to the API service are not deleted.
-
-## Development
-
-| Command       | Description                  |
-| ------------- | ---------------------------- |
-| `pnpm dev`    | Start the development server |
-| `pnpm build`  | Build into `dist/`           |
-| `pnpm type`   | Run TypeScript type checks   |
-| `pnpm lint`   | Lint with oxlint             |
-| `pnpm format` | Format with oxfmt            |
-
-[rspack.config.ts](rspack.config.ts) uses `https://api.deepseek.com` by default. Use `createConfig({ apiOrigin, devServer })` to customize the API origin and development server proxy.
-
-Chat uses `deepseek-flash` by default through Anthropic-compatible Messages / Files APIs. Speech features use ASR / TTS endpoints. Requests include extensions for search, link reading, titles, and `latest_reminder`, so the configured service must support the corresponding capabilities. Supported attachment formats are determined by server-side validation.
-
-```text
-src/
-  app/                 Application layout, themes, and global styles
-  components/          Chat, settings, Markdown, and other UI components
-  i18n/                English and Chinese translations
-  services/
-    api/               API requests, SSE, and protocol types
-    chat/              Conversations, message branches, storage, and history import/export
-    markdown/          Markdown parsing, syntax highlighting, and diagrams
-    speech/            Audio recording and read-aloud playback
-  utils/               Shared utilities
-```
-
-## License
-
-[MIT](LICENSE). The build copies the license to `dist/LICENSE`; include it when distributing the app. Third-party dependencies are subject to their own licenses.
+MIT，见 [LICENSE](./LICENSE)。原项目版权归 DeepSeek。
