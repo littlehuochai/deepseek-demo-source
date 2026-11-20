@@ -1,0 +1,41 @@
+.container {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  scrollbar-gutter: stable both-edges;
+  scrollbar-color: var(--scroll-color) transparent;
+}
+
+.scroll {
+  display: contents;
+}
+
+@media not all and (min-width: 768px) {
+  .container {
+    overflow: hidden;
+    scrollbar-gutter: auto;
+  }
+
+  .scroll {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    overflow-y: auto;
+    /* 内容比屏幕宽时在列表里左右滑，而不是把整页撑宽 */
+    overflow-x: auto;
+    overscroll-behavior-y: contain;
+    scrollbar-color: var(--scroll-color) transparent;
+  }
+}
+
+.column {
+  width: calc(var(--message-list-max-width) - 2 * var(--message-list-padding-horizontal));
+  max-width: calc(100% - 40px);
+  /* 允许窄屏下被内容撑宽时收缩，否则长公式会把整页撑出屏幕 */
+  min-width: 0;
+  margin: 0 auto;
+  padding-bottom: 24px;
+}

@@ -1,0 +1,25 @@
+{
+  "name": "local-demo-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "lib/index.js",
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "engines": {
+    "dsh": ">=0.2.1-rc.2 <0.3.0-0"
+  },
+  "dshGo": {
+    "v": 1,
+    "title": { "zh": "本机演示", "en": "Local demo" },
+    "icon": "terminal",
+    "contributes": {
+      "composer.actions": [
+        { "id": "start-demo", "label": { "zh": "开本机演示", "en": "Start demo" }, "icon": "play" }
+      ]
+    }
+  }
+}

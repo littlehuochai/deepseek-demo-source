@@ -1,0 +1,28 @@
+/* 窄屏只做防溢出处理，排版保持 demo 原本的样式 */
+@media (max-width: 767px) {
+  /* 页面本身不允许被内容撑得比屏幕宽，避免缩小后右侧出现空白 */
+  html,
+  body,
+  #root {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .ds-markdown {
+    max-width: 100%;
+  }
+
+  /* 表格在框内左右滑动，不影响整页宽度 */
+  .markdown-table-wrapper {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* 独占一行的公式同样在框内滑动 */
+  .ds-markdown-math.katex-display {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
