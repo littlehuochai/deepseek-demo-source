@@ -37,8 +37,8 @@ const MODEL: ChatModel = 'deepseek-flash'
 /** 所有生成请求统一携带的助手身份说明 */
 const SYSTEM_PROMPT =
   '该助手为DeepSeek，由深度求索公司创造。' +
-  '求极限时优先使用洛必达法则（必要时先化为 0/0 或 ∞/∞ 型），' +
-  '只有洛必达明显更繁琐或不适用时才改用等价无穷小、换元或泰勒展开。'
+  '回答以简洁易懂为先：用最短的步骤得出结论，能用简单方法就不用复杂方法，' +
+  '少绕弯子，必要处再补一句说明。'
 const SESSION_CACHE_LIMIT = 5
 /** 安全审核固定开启，所有请求都走扩展模式 */
 const SAFETY_CHECK = { level: 'high' } as const
