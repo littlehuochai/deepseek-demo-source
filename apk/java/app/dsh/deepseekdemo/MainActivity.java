@@ -8,6 +8,9 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.webkit.CookieManager;
 import android.webkit.ValueCallback;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.webkit.PermissionRequest;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -15,6 +18,7 @@ import android.webkit.WebViewClient;
 
 public class MainActivity extends Activity {
     private static final int FILE_CHOOSER_CODE = 1001;
+    private static final int MIC_PERMISSION_CODE = 1002;
 
     private WebView web;
     private ValueCallback<Uri[]> fileCallback;
@@ -41,6 +45,25 @@ public class MainActivity extends Activity {
         // 文件选择：网页里的 <input type="file"> 需要宿主打开系统选择器
         web.setWebChromeClient(
                 new WebChromeClient() {
+                    @Override
+                    public void onPermissionRequest(final PermissionRequest request) {
+                        runOnUiThread(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        for (String resource : request.getResources()) {
+                                            if (PermissionRequest.RESOURCE_AUDIO_CAPTURE.equals(resource)
+                                                    && checkSelfPermission(Manifest.permission.RECORD_AUDIO)
+                                                            == PackageManager.PERMISSION_GRANTED) {
+                                                request.grant(new String[] { PermissionRequest.RESOURCE_AUDIO_CAPTURE });
+                                                return;
+                                            }
+                                        }
+                                        request.deny();
+                                    }
+                                });
+                    }
+
                     @Override
                     public boolean onShowFileChooser(
                             WebView view,
@@ -72,6 +95,9 @@ public class MainActivity extends Activity {
                 });
 
         setContentView(web);
+        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[] { Manifest.permission.RECORD_AUDIO }, MIC_PERMISSION_CODE);
+        }
         web.loadUrl("file:///android_asset/index.html");
     }
 
