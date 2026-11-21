@@ -40,7 +40,22 @@ public class MainActivity extends Activity {
         s.setCacheMode(WebSettings.LOAD_DEFAULT);
         s.setUserAgentString(s.getUserAgentString() + " DSHDeepSeekDemo/1.1");
         CookieManager.getInstance().setAcceptCookie(true);
-        web.setWebViewClient(new WebViewClient());
+        web.setWebViewClient(
+                new WebViewClient() {
+                    @Override
+                    public boolean shouldOverrideUrlLoading(WebView view, android.webkit.WebResourceRequest request) {
+                        String scheme = request.getUrl().getScheme();
+                        // 外部链接交给系统浏览器，避免把当前对话顶掉
+                        if ("http".equals(scheme) || "https".equals(scheme)) {
+                            try {
+                                startActivity(new Intent(Intent.ACTION_VIEW, request.getUrl()));
+                            } catch (Exception ignored) {
+                            }
+                        }
+                        // blob:/file:/data: 等一律留在应用内，由页面自己的遮罩显示
+                        return true;
+                    }
+                });
 
         // 文件选择：网页里的 <input type="file"> 需要宿主打开系统选择器
         web.setWebChromeClient(
