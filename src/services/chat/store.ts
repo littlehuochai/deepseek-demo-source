@@ -1078,7 +1078,10 @@ const streamReply = async (sessionId: string, initial: AssistantMessage, request
           }
           continue
         }
-        if (error instanceof ApiError && error.kind === 'interrupted' && reply.stopReason) {
+        // 切后台被系统掐断但已经出了内容：按“已停止”收尾，保留内容并能点继续
+        if (error instanceof ApiError && error.kind === 'network' && receivedContent) {
+          reply = settleReply(reply, 'stopped', Date.now())
+        } else if (error instanceof ApiError && error.kind === 'interrupted' && reply.stopReason) {
           // 已收到 message_delta 的结束原因，只是缺了结尾的 message_stop
           reply = settleReply(reply, 'done', Date.now())
         } else if (error instanceof ApiError) {
