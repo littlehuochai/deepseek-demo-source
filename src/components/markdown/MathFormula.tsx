@@ -52,7 +52,8 @@ const useMathHtml = (input: string, isInline: boolean): MathHtmlResult => {
           .slice(prefix.length, -suffix.length)
         return { html, renderMode: 'katex' }
       } catch {
-        return { html: input, renderMode: 'fallback' }
+        // 公式还没写完（流式中）或本身写坏了：先留空，别把 TeX 源码露出来
+        return { html: '', renderMode: 'katex' }
       }
     }
   }, [input, isInline, katex])
