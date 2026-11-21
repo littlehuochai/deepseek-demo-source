@@ -41,7 +41,19 @@ const useMathHtml = (input: string, isInline: boolean): MathHtmlResult => {
       previousResultRef.current = result
       return result
     } catch {
-      return previousResultRef.current ?? { html: input, renderMode: 'fallback' }
+      if (previousResultRef.current) {
+        return previousResultRef.current
+      }
+      // 宽松模式：能渲染多少算多少，别把整段 TeX 源码摊在页面上
+      try {
+        const [prefix, suffix] = KATEX_WRAPPER[isInline ? 'inline' : 'display']
+        const html = katex
+          .renderToString(input, { throwOnError: false, strict: false, displayMode: !isInline })
+          .slice(prefix.length, -suffix.length)
+        return { html, renderMode: 'katex' }
+      } catch {
+        return { html: input, renderMode: 'fallback' }
+      }
     }
   }, [input, isInline, katex])
 }

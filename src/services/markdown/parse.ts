@@ -212,7 +212,8 @@ export function toMdAst(
  */
 const POWER = String.raw`(?:\^\{[^{}]*\}|\^[A-Za-z0-9]|\^\\[A-Za-z]+)?`
 const SIMPLE = String.raw`(?:[A-Za-z]+|[0-9]+|\{[^{}]*\}|\\[A-Za-z]+)${POWER}`
-const BOUNDARY = String.raw`(?<![\\A-Za-z0-9])`
+// 前面是 ^ 或 _ 时不转换：\text{Cu}^{2+}/\text{Cu} 是电极写法，不是分式
+const BOUNDARY = String.raw`(?<![\\A-Za-z0-9^_])`
 
 const PAREN_DEN = new RegExp(`${BOUNDARY}(${SIMPLE})\\s*/\\s*\\(([^()]*)\\)`, 'g')
 const PAREN_NUM = new RegExp(`${BOUNDARY}\\(([^()]*)\\)\\s*/\\s*(${SIMPLE})`, 'g')
