@@ -223,6 +223,16 @@ const PLAIN = new RegExp(`${BOUNDARY}(${SIMPLE})\\s*/\\s*(${SIMPLE})(?![A-Za-z0-
 const TEXT_FRAC = new RegExp(String.raw`\\text\{\s*\\frac\{([^{}]*)\}\{([^{}]*)\}\s*\}`, 'g')
 const fixTextFraction = (value: string): string => value.replace(TEXT_FRAC, '\\text{$1/$2}')
 
+/** KaTeX 不支持的常用 LaTeX 命令，换成等效写法 */
+const TEX_ALIASES: Array<[RegExp, string]> = [
+  [/\\cdotp(?![A-Za-z])/g, '\\cdot'],
+  [/\\ldotp(?![A-Za-z])/g, '\\cdot'],
+  [/\\varDelta(?![A-Za-z])/g, '\\Delta'],
+  [/\\varTheta(?![A-Za-z])/g, '\\Theta'],
+]
+const applyTexAliases = (value: string): string =>
+  TEX_ALIASES.reduce((text, [pattern, replacement]) => text.replace(pattern, replacement), value)
+
 const stackFractions = (value: string): string => {
   let current = value
   for (let guard = 0; guard < 20; guard += 1) {
@@ -236,7 +246,7 @@ const stackFractions = (value: string): string => {
     current = next
   }
   // 最后再处理 \text 里的分数，避免又被上面的规则转回去
-  return fixTextFraction(current)
+  return fixTextFraction(applyTexAliases(current))
 }
 
 /** 递归处理公式节点 */
