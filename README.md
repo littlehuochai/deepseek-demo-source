@@ -4,7 +4,7 @@
 修了一批手机上用着别扭的地方，并打包成了可以安装的 Android 应用。
 
 - **在线版**：https://littlehuochai.github.io/deepseek-demo/
-- **APK 下载**：[Releases](../../releases)（当前 v1.3）
+- **APK 下载**：[Releases](../../releases)（当前 v1.7「大肥鱼」）（当前 v1.7「大肥鱼」）
 - **用前需要**：你自己的 DeepSeek API Key（在页面「设置」里填一次，存在本机）
 
 ## 相对原版的改动
