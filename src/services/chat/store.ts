@@ -42,7 +42,9 @@ const SYSTEM_PROMPT =
   '化学里常用常数取标准值：能斯特方程在 25 ℃ 用 0.05917 V。' +
   '解题时先列出用到的公式，一行一个、不展开推导，再代入数据计算。' +
   '求平衡常数 K 时，先写基础关系 \Delta_rG^\ominus=-nFE^\ominus 与 \Delta_rG^\ominus=-RT\ln K，' +
-  '再由它们推出常温近似式 \lg K=\frac{nE^\ominus}{0.05917}，不要一上来就直接套近似式。'
+  '再由它们推出常温近似式 \lg K=\frac{nE^\ominus}{0.05917}，不要一上来就直接套近似式。' +
+  '思考过程像人一样展开：先判断题目在考什么，再试探解法、核对数据、发现不对就回头改；' +
+  '正式回答只给结论和关键步骤，不要把这套探试过程重复一遍。'
 const SESSION_CACHE_LIMIT = 5
 /** 安全审核固定开启，所有请求都走扩展模式 */
 const SAFETY_CHECK = { level: 'high' } as const
