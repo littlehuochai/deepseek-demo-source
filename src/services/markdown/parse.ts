@@ -219,12 +219,24 @@ const PAREN_DEN = new RegExp(`${BOUNDARY}(${SIMPLE})\\s*/\\s*\\(([^()]*)\\)`, 'g
 const PAREN_NUM = new RegExp(`${BOUNDARY}\\(([^()]*)\\)\\s*/\\s*(${SIMPLE})`, 'g')
 const PLAIN = new RegExp(`${BOUNDARY}(${SIMPLE})\\s*/\\s*(${SIMPLE})(?![A-Za-z0-9])`, 'g')
 
+/** KaTeX 不允许 \text{} 里用 \frac，模型却常这么写单位；这里改成 a/b */
+const TEXT_FRAC = new RegExp(String.raw`\\text\{\s*\\frac\{([^{}]*)\}\{([^{}]*)\}\s*\}`, 'g')
+const fixTextFraction = (value: string): string => value.replace(TEXT_FRAC, '\\text{$1/$2}')
+
 const stackFractions = (value: string): string => {
-  const converted = value
-    .replace(PAREN_DEN, '\\frac{$1}{$2}')
-    .replace(PAREN_NUM, '\\frac{$1}{$2}')
-    .replace(PLAIN, '\\frac{$1}{$2}')
-  return converted === value ? value : stackFractions(converted)
+  let current = value
+  for (let guard = 0; guard < 20; guard += 1) {
+    const next = current
+      .replace(PAREN_DEN, '\\frac{$1}{$2}')
+      .replace(PAREN_NUM, '\\frac{$1}{$2}')
+      .replace(PLAIN, '\\frac{$1}{$2}')
+    if (next === current) {
+      break
+    }
+    current = next
+  }
+  // 最后再处理 \text 里的分数，避免又被上面的规则转回去
+  return fixTextFraction(current)
 }
 
 /** 递归处理公式节点 */

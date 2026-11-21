@@ -41,7 +41,6 @@ const SYSTEM_PROMPT =
   '面向大一新生讲解：按步骤展开，每一步说明为什么这么做、用了哪个公式；' +
   '公式里每个符号第一次出现时用一句白话说明含义，不要跳步，也不要省略中间计算。' +
   '化学常数用标准值：能斯特方程在 25 ℃ 用 0.05917 V。' +
-  '单位用普通写法：mol/L 或 mol·dm⁻³，不要在单位外面套分数或文字命令（KaTeX 会报错）。' +
   '求平衡常数 K 时，先写基础关系 \Delta_rG^\ominus=-nFE^\ominus 与 \Delta_rG^\ominus=-RT\ln K，' +
   '再推出常温近似式 \lg K=\frac{nE^\ominus}{0.05917}，不要一上来就直接套近似式。' +
   '思考过程像人一样展开：先判断考点，再试探解法、核对数据，发现不对就回头改；' +
@@ -1063,6 +1062,16 @@ const streamReply = async (sessionId: string, initial: AssistantMessage, request
           reuploadInvalidatedFiles(sessionId, request, error)
         ) {
           await waitForRetry(attempt, controller.signal)
+          if (controller.signal.aborted) {
+            reply = settleReply(reply, 'stopped', Date.now())
+            break
+          }
+          continue
+        }
+        // 切到后台等因素把连接掐断、且还没收到内容：静默重试一次
+        const networkish = error instanceof ApiError ? error.kind === 'network' : true
+        if (networkish && !receivedContent && attempt < 1) {
+          await new Promise((resolve) => setTimeout(resolve, 1500))
           if (controller.signal.aborted) {
             reply = settleReply(reply, 'stopped', Date.now())
             break
