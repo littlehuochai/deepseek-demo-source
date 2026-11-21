@@ -7,6 +7,12 @@ const KATEX_WRAPPER = {
   display: ['<span class="katex-display"><span class="katex">', '</span></span>'],
 } as const
 
+/** 只在外层包裹确实存在时才裁剪，出错时 KaTeX 的输出没有这层包裹 */
+const stripWrapper = (html: string, prefix: string, suffix: string) =>
+  html.startsWith(prefix) && html.endsWith(suffix)
+    ? html.slice(prefix.length, html.length - suffix.length)
+    : html
+
 type MathHtmlResult = {
   html: string
   renderMode: 'katex' | 'fallback'
@@ -34,9 +40,11 @@ const useMathHtml = (input: string, isInline: boolean): MathHtmlResult => {
     }
     try {
       const [prefix, suffix] = KATEX_WRAPPER[isInline ? 'inline' : 'display']
-      const html = katex
-        .renderToString(input, { throwOnError: true, strict: false, displayMode: !isInline })
-        .slice(prefix.length, -suffix.length)
+      const html = stripWrapper(
+        katex.renderToString(input, { throwOnError: true, strict: false, displayMode: !isInline }),
+        prefix,
+        suffix
+      )
       const result = { html, renderMode: 'katex' } as const
       previousResultRef.current = result
       return result
@@ -47,9 +55,11 @@ const useMathHtml = (input: string, isInline: boolean): MathHtmlResult => {
       // 宽松模式：能渲染多少算多少，别把整段 TeX 源码摊在页面上
       try {
         const [prefix, suffix] = KATEX_WRAPPER[isInline ? 'inline' : 'display']
-        const html = katex
-          .renderToString(input, { throwOnError: false, strict: false, displayMode: !isInline })
-          .slice(prefix.length, -suffix.length)
+        const html = stripWrapper(
+          katex.renderToString(input, { throwOnError: false, strict: false, displayMode: !isInline }),
+          prefix,
+          suffix
+        )
         return { html, renderMode: 'katex' }
       } catch {
         // 公式还没写完（流式中）或本身写坏了：先留空，别把 TeX 源码露出来
